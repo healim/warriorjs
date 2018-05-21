@@ -24,6 +24,7 @@ const levelConfig = {
     warrior: {
       name: 'Joe',
       character: '@',
+      color: '#8fbcbb',
       maxHealth: 20,
       abilities: {
         walk: () => ({
@@ -48,6 +49,7 @@ const levelConfig = {
       {
         name: 'Sludge',
         character: 's',
+        color: '#d08770',
         maxHealth: 12,
         abilities: {
           attack: () => ({
@@ -142,8 +144,8 @@ test('returns level', () => {
             unit: {
               name: 'Joe',
               character: '@',
+              color: '#8fbcbb',
               maxHealth: 20,
-              warrior: true,
               health: 20,
               score: 0,
               abilities: {
@@ -184,6 +186,7 @@ test('returns level', () => {
             unit: {
               name: 'Sludge',
               character: 's',
+              color: '#d08770',
               maxHealth: 12,
               health: 12,
             },
@@ -251,8 +254,8 @@ test('returns level', () => {
       warrior: {
         name: 'Joe',
         character: '@',
+        color: '#8fbcbb',
         maxHealth: 20,
-        warrior: true,
         abilities: {
           actions: [
             [

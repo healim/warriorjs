@@ -1,29 +1,18 @@
 import chalk from 'chalk';
 
-const warriorStyle = chalk.cyan;
-const unitStyles = [
-  chalk.magenta,
-  chalk.red,
-  chalk.yellow,
-  chalk.green,
-  chalk.blue,
-];
+// Downsample colors from RGB to 256 color ANSI for greater uniformity.
+const ctx = new chalk.constructor({ level: 2 });
 
 /**
  * Returns the style for the given unit.
  *
  * @param {Object} unit The unit to get the style for.
- * @param {string} unit.character The character that represents the unit.
- * @param {boolean} unit.warrior Whether the unit is the warrior or not.
+ * @param {string} unit.color The color of the unit (hex).
  *
  * @returns {Function} The style function.
  */
-function getUnitStyle({ character, warrior }) {
-  if (warrior) {
-    return warriorStyle;
-  }
-
-  return unitStyles[character.charCodeAt(0) % unitStyles.length];
+function getUnitStyle({ color }) {
+  return ctx.hex(color);
 }
 
 export default getUnitStyle;

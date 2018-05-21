@@ -11,8 +11,7 @@ import printLine from './printLine';
  */
 function printLogMessage(unit, message) {
   const prompt = chalk.gray.dim('>');
-  const style = getUnitStyle(unit);
-  const logMessage = style(`${unit.name} ${message}`);
+  const logMessage = getUnitStyle(unit)(`${unit.name} ${message}`);
   printLine(`${prompt} ${logMessage}`);
 }
 

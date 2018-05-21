@@ -12,8 +12,7 @@ function printFloorMap(map) {
       row
         .map(({ character, unit }) => {
           if (unit) {
-            const style = getUnitStyle(unit);
-            return style(character);
+            return getUnitStyle(unit)(character);
           }
 
           return character;

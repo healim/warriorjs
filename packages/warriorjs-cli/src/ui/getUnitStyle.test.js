@@ -2,14 +2,10 @@ import style from 'ansi-styles';
 
 import getUnitStyle from './getUnitStyle';
 
-test('returns cyan style function for warrior', () => {
-  const warriorStyle = getUnitStyle({ warrior: true });
-  expect(warriorStyle('@')).toEqual(`${style.cyan.open}@${style.cyan.close}`);
-});
-
-test('returns calculated style function for other units', () => {
-  const unitStyle = getUnitStyle({ character: 's' });
-  expect(unitStyle('s')).toEqual(
-    `${style.magenta.open}s${style.magenta.close}`,
+test('downsamples RGB to 256 color ANSI', () => {
+  const color = '#8fbcbb';
+  const unitStyle = getUnitStyle({ color });
+  expect(unitStyle('foo')).toBe(
+    `${style.color.ansi256.hex(color)}foo${style.color.close}`,
   );
 });
