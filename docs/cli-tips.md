@@ -9,3 +9,6 @@ sidebar_label: CLI
 
 * Make sure to try the different options you can pass to the `warriorjs`
   command. Run `warriorjs --help` to see them all.
+
+* If you're on Windows, consider using [cmder](http://cmder.net) instead of
+  `cmd.exe`.
