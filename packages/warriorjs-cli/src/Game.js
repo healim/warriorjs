@@ -85,59 +85,12 @@ class Game {
   async loadProfile() {
     let profile = await Profile.load(this.runDirectoryPath);
     if (!profile) {
-      await this.ensureGameDirectory();
       profile = await this.chooseProfile();
     }
 
     profile.tower = this.towers.find(tower => tower.name === profile.towerName);
 
     return profile;
-  }
-
-  /**
-   * Ensures the game directory exists.
-   */
-  async ensureGameDirectory() {
-    const directoryExists = await this.gameDirectoryExists();
-    if (!directoryExists) {
-      await this.makeGameDirectory();
-    }
-  }
-
-  /**
-   * Checks if the game directory exists.
-   *
-   * @returns {boolean} Whether the game directory exists or not.
-   */
-  async gameDirectoryExists() {
-    return pathType.dir(this.gameDirectoryPath);
-  }
-
-  /**
-   * Creates the game directory.
-   */
-  async makeGameDirectory() {
-    const makeDirectory =
-      this.assumeYes ||
-      (await requestConfirmation(
-        'No warriorjs directory found, would you like to create one?',
-        true,
-      ));
-    if (!makeDirectory) {
-      throw new GameError('Unable to continue without directory.');
-    }
-
-    try {
-      await makeDir(this.gameDirectoryPath);
-    } catch (err) {
-      if (err.code === 'EEXIST') {
-        throw new GameError(
-          'A file named warriorjs exists at this location. Please change the directory under which you are running warriorjs.',
-        );
-      }
-
-      throw err;
-    }
   }
 
   /**
@@ -242,8 +195,55 @@ class Game {
    * @returns {string[]} The paths to the available profiles.
    */
   async getProfileDirectoriesPaths() {
+    await this.ensureGameDirectory();
     const profileDirectoryPattern = path.join(this.gameDirectoryPath, '*');
     return globby(profileDirectoryPattern, { onlyDirectories: true });
+  }
+
+  /**
+   * Ensures the game directory exists.
+   */
+  async ensureGameDirectory() {
+    const directoryExists = await this.gameDirectoryExists();
+    if (!directoryExists) {
+      await this.makeGameDirectory();
+    }
+  }
+
+  /**
+   * Checks if the game directory exists.
+   *
+   * @returns {boolean} Whether the game directory exists or not.
+   */
+  async gameDirectoryExists() {
+    return pathType.dir(this.gameDirectoryPath);
+  }
+
+  /**
+   * Creates the game directory.
+   */
+  async makeGameDirectory() {
+    const makeDirectory =
+      this.assumeYes ||
+      (await requestConfirmation(
+        'No warriorjs directory found, would you like to create one?',
+        true,
+      ));
+    if (!makeDirectory) {
+      throw new GameError('Unable to continue without directory.');
+    }
+
+    try {
+      await makeDir(this.gameDirectoryPath);
+    } catch (err) {
+      if (err.code === 'EEXIST') {
+        throw new GameError(
+          'A file named warriorjs exists at this location. Please change the directory under which you are running warriorjs.',
+        );
+      }
+
+      throw err;
+    }
   }
 
   /**
