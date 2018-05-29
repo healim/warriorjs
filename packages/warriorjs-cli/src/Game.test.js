@@ -39,11 +39,14 @@ describe('Game', () => {
 
   describe('when loading profile', () => {
     const originalLoad = Profile.load;
+    const profile = { towerName: 'foo' };
+    const tower = { name: 'foo' };
 
     beforeEach(() => {
       Profile.load = jest.fn();
       game.ensureGameDirectory = jest.fn();
       game.chooseProfile = jest.fn();
+      game.towers = [tower];
     });
 
     afterEach(() => {
@@ -51,16 +54,18 @@ describe('Game', () => {
     });
 
     test('returns profile if in profile directory', async () => {
-      Profile.load.mockReturnValue('profile');
-      const profile = await game.loadProfile();
-      expect(profile).toBe('profile');
+      Profile.load.mockReturnValue(profile);
+      const loadedProfile = await game.loadProfile();
+      expect(loadedProfile).toBe(profile);
+      expect(loadedProfile.tower).toBe(tower);
     });
 
     test('gives the option to choose a profile', async () => {
       Profile.load.mockReturnValue(null);
-      game.chooseProfile.mockReturnValue('chosenProfile');
-      const profile = await game.loadProfile();
-      expect(profile).toBe('chosenProfile');
+      game.chooseProfile.mockReturnValue(profile);
+      const loadedProfile = await game.loadProfile();
+      expect(loadedProfile).toBe(profile);
+      expect(loadedProfile.tower).toBe(tower);
       expect(game.ensureGameDirectory).toHaveBeenCalled();
       expect(game.chooseProfile).toHaveBeenCalled();
     });
@@ -202,25 +207,26 @@ describe('Game', () => {
 
       describe('with practice level', () => {
         beforeEach(() => {
+          game.profile.tower = { hasLevel: jest.fn() };
           game.practiceLevel = 2;
         });
 
         test('plays only practice level', async () => {
-          game.tower = { hasLevel: jest.fn().mockReturnValue(true) };
+          game.profile.tower.hasLevel.mockReturnValue(true);
           await game.playEpicMode();
-          expect(game.tower.hasLevel).toHaveBeenCalledWith(2);
+          expect(game.profile.tower.hasLevel).toHaveBeenCalledWith(2);
           expect(game.playLevel).toHaveBeenCalledWith(2);
           expect(game.playLevel).toHaveBeenCalledTimes(1);
         });
 
         test("throws if tower doesn't have practice level", async () => {
-          game.tower = { hasLevel: jest.fn().mockReturnValue(false) };
+          game.profile.tower.hasLevel.mockReturnValue(false);
           await expect(game.playEpicMode()).rejects.toThrow(
             new GameError(
               'Unable to practice non-existent level, try another.',
             ),
           );
-          expect(game.tower.hasLevel).toHaveBeenCalledWith(2);
+          expect(game.profile.tower.hasLevel).toHaveBeenCalledWith(2);
         });
       });
     });
@@ -260,6 +266,7 @@ describe('Game', () => {
   describe('when requesting next level', () => {
     beforeEach(() => {
       game.profile = {
+        tower: { hasLevel: jest.fn() },
         levelNumber: 1,
         getReadmeFilePath: () => '/path/to/profile/readme',
       };
@@ -268,14 +275,13 @@ describe('Game', () => {
     });
 
     test('checks if tower has next level', async () => {
-      game.tower = { hasLevel: jest.fn() };
       await game.requestNextLevel();
-      expect(game.tower.hasLevel).toHaveBeenCalledWith(2);
+      expect(game.profile.tower.hasLevel).toHaveBeenCalledWith(2);
     });
 
     describe('with next level', () => {
       beforeEach(() => {
-        game.tower = { hasLevel: () => true };
+        game.profile.tower.hasLevel.mockReturnValue(true);
       });
 
       test('requests confirmation from the player to continue on to next level', async () => {
@@ -319,7 +325,7 @@ describe('Game', () => {
 
     describe('without next level', () => {
       beforeEach(() => {
-        game.tower = { hasLevel: () => false };
+        game.profile.tower.hasLevel.mockReturnValue(false);
       });
 
       test('requests confirmation from the player to continue to epic mode', async () => {
@@ -362,13 +368,12 @@ describe('Game', () => {
 
   test('generates player', async () => {
     game.profile = { levelNumber: 1 };
-    game.tower = 'tower';
     getLevelConfig.mockReturnValue('config');
     getLevel.mockReturnValue('level');
     const mockGenerate = jest.fn();
     ProfileGenerator.mockImplementation(() => ({ generate: mockGenerate }));
     await game.generateProfileFiles();
-    expect(getLevelConfig).toHaveBeenCalledWith(1, 'tower', game.profile);
+    expect(getLevelConfig).toHaveBeenCalledWith(1, game.profile);
     expect(getLevel).toHaveBeenCalledWith('config');
     expect(ProfileGenerator).toHaveBeenCalledWith(game.profile, 'level');
     expect(mockGenerate).toHaveBeenCalled();
